@@ -5,12 +5,15 @@ import type { PresignResponse } from "@/app/api/presign/route";
 import { saveImageMetadata } from "@/server/actions/save-image-metadata";
 import { useAuth } from "@clerk/nextjs";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export default function UploadForm() {
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
 
   const userId = useAuth().userId;
+
+  const router = useRouter();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFile(e.target.files?.[0] ?? null);
@@ -69,6 +72,13 @@ export default function UploadForm() {
         filename: file.name,
         userID: userId,
       });
+      setUploading(false);
+      setFile(null);
+      toast.dismiss(`saving-${file.name}`);
+      toast.success("Metadata saved", {
+        id: `uploading-${file.name}`,
+      });
+      router.refresh();
     } else {
       toast.error("Upload failed", {
         id: `uploading-${file.name}`,
