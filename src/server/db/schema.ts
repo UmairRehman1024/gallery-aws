@@ -12,16 +12,18 @@ import { index, sqliteTableCreator } from "drizzle-orm/sqlite-core";
  */
 export const createTable = sqliteTableCreator((name) => `gallery-aws_${name}`);
 
-export const posts = createTable(
-  "post",
+export const images = createTable(
+  "image",
   (d) => ({
-    id: d.integer({ mode: "number" }).primaryKey({ autoIncrement: true }),
-    name: d.text({ length: 256 }),
-    createdAt: d
+    id: d.text().primaryKey(), // Use nanoid/cuid for IDs
+    key: d.text().notNull().unique(),
+    url: d.text().notNull().unique(),
+    filename: d.text().notNull(),
+    uploadedAt: d
       .integer({ mode: "timestamp" })
       .default(sql`(unixepoch())`)
       .notNull(),
-    updatedAt: d.integer({ mode: "timestamp" }).$onUpdate(() => new Date()),
+    userID: d.text(),
   }),
-  (t) => [index("name_idx").on(t.name)],
+  (t) => [index("key_idx").on(t.key)],
 );

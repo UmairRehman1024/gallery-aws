@@ -1,13 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import type { PresignResponse } from "@/app/api/presign/route";
+import { saveImageMetadata } from "@/server/actions/save-image-metadata";
+import { useAuth } from "@clerk/nextjs";
+import { toast } from "sonner";
 
 export default function UploadForm() {
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
-  const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
+
+  const userId = useAuth().userId;
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFile(e.target.files?.[0] ?? null);
@@ -15,7 +18,14 @@ export default function UploadForm() {
 
   const handleUpload = async () => {
     if (!file) return;
-    setUploading(true);
+
+    if (!userId) {
+      alert("You must be signed in to upload files.");
+      return;
+    }
+    toast.loading("Getting Presigned URL...", {
+      id: `uploading-${file.name}`,
+    });
 
     // 1. Get pre-signed URL from server action
     const presignRes = await fetch("/api/presign", {
@@ -24,6 +34,18 @@ export default function UploadForm() {
       body: JSON.stringify({ filename: file.name, filetype: file.type }),
     });
     const { url, key } = (await presignRes.json()) as PresignResponse;
+
+    if (!url || !key) {
+      toast.dismiss(`uploading-${file.name}`);
+      toast.error("Failed to get presigned URL", {
+        id: `uploading-${file.name}`,
+      });
+      return;
+    }
+
+    toast.loading("Uploading to S3 bucket...", {
+      id: `uploading-${file.name}`,
+    });
 
     // 2. Upload file directly to S3
     const res = await fetch(url, {
@@ -35,14 +57,23 @@ export default function UploadForm() {
     });
 
     if (res.ok) {
-      // 3. Optionally, save metadata to your DB here
-      setUploadedUrl(
-        `https://${process.env.NEXT_PUBLIC_S3_BUCKET_NAME}.s3.amazonaws.com/${key}`,
-      );
+      toast.success("Upload successful", {
+        id: `uploading-${file.name}`,
+      });
+      toast.loading("Saving metadata...", {
+        id: `uploading-${file.name}`,
+      });
+      await saveImageMetadata({
+        key,
+        url: `https://${process.env.NEXT_PUBLIC_S3_BUCKET_NAME}.s3.amazonaws.com/${key}`,
+        filename: file.name,
+        userID: userId,
+      });
     } else {
-      alert("Upload failed");
+      toast.error("Upload failed", {
+        id: `uploading-${file.name}`,
+      });
     }
-    setUploading(false);
   };
 
   return (
@@ -51,18 +82,6 @@ export default function UploadForm() {
       <button onClick={handleUpload} disabled={!file || uploading}>
         {uploading ? "Uploading..." : "Upload"}
       </button>
-      {uploadedUrl && (
-        <div>
-          <p>Uploaded!</p>
-          <Image
-            src={uploadedUrl}
-            alt="Uploaded"
-            width={200}
-            height={200}
-            style={{ maxWidth: 200 }}
-          />
-        </div>
-      )}
     </div>
   );
 }
