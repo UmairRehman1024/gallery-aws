@@ -1,7 +1,7 @@
 "use server";
 
 import { nanoid } from "nanoid/non-secure";
-import { ddb, GalleryImageSchema } from "../db/dynamo";
+import { ddb, GalleryImageSchema } from "../db";
 import { PutCommand } from "@aws-sdk/lib-dynamodb";
 import { env } from "@/env";
 

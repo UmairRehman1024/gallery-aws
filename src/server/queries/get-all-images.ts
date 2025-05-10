@@ -1,5 +1,5 @@
 import { ScanCommand } from "@aws-sdk/lib-dynamodb";
-import { ddb, GalleryImageSchema, type GalleryImage } from "../db/dynamo";
+import { ddb, GalleryImageSchema, type GalleryImage } from "../db";
 import { env } from "@/env";
 
 // export async function getAllImages1() {
