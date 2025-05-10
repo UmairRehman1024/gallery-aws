@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { PresignResponse } from "@/app/api/presign/route";
+import type { PresignResponse } from "@/app/api/getPresignedURL/route";
 import { saveImageMetadata } from "@/server/actions/save-image-metadata";
 import { useAuth } from "@clerk/nextjs";
 import { toast } from "sonner";
@@ -31,7 +31,7 @@ export default function UploadForm() {
     });
 
     // 1. Get pre-signed URL from server action
-    const presignRes = await fetch("/api/presign", {
+    const presignRes = await fetch("/api/getPresignedURL", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ filename: file.name, filetype: file.type }),
