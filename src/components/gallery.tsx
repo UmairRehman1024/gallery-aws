@@ -9,7 +9,7 @@ export default async function Gallery() {
       <h1>Gallery</h1>
       <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
         {images.map((img) => (
-          <div key={img.id} className="rounded border p-2">
+          <div key={img.ID} className="rounded border p-2">
             <Image
               src={img.url}
               alt={img.filename}

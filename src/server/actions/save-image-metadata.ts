@@ -1,8 +1,9 @@
 "use server";
 
-import { db } from "@/server/db"; // Your Drizzle db instance
-import { images } from "@/server/db/schema";
-import { nanoid } from "nanoid/non-secure"; // or use cuid if you prefer
+import { nanoid } from "nanoid/non-secure";
+import { ddb, GalleryImageSchema } from "../db/dynamo";
+import { PutCommand } from "@aws-sdk/lib-dynamodb";
+import { env } from "@/env";
 
 export async function saveImageMetadata({
   key,
@@ -15,12 +16,23 @@ export async function saveImageMetadata({
   filename: string;
   userID: string;
 }) {
-  await db.insert(images).values({
-    id: nanoid(),
+  // Validate the input data
+  const parsedData = GalleryImageSchema.parse({
+    ID: nanoid(),
     key,
     url,
     filename,
-    uploadedAt: new Date(),
+    uploadedAt: Date.now(),
     userID,
   });
+
+  await ddb.send(
+    new PutCommand({
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      TableName: env.AWS_DYNAMO_DB_TABLE,
+      Item: {
+        ...parsedData, // <-- Spread the fields here
+      },
+    }),
+  );
 }
