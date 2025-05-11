@@ -26,32 +26,30 @@ import { SignedIn } from "@clerk/nextjs";
 
 export default async function HomePage() {
   return (
-    <div className="flex min-h-screen flex-col">
-      <main className="flex-1">
-        <div className="container py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">
-                Public Gallery
-              </h1>
-              <p className="text-muted-foreground">
-                Browse all public images from our community.
-              </p>
-            </div>
-            <SignedIn>
-              <Button asChild>
-                <Link href="/upload" className="gap-2">
-                  <Upload className="h-4 w-4" />
-                  Upload Image
-                </Link>
-              </Button>
-            </SignedIn>
+    <main className="flex min-h-screen w-full flex-col items-center">
+      <div className="container py-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">
+              Public Gallery
+            </h1>
+            <p className="text-muted-foreground">
+              Browse all public images from our community.
+            </p>
           </div>
-          <Suspense fallback={<GallerySkeleton />}>
-            <Gallery />
-          </Suspense>
+          <SignedIn>
+            <Button asChild>
+              <Link href="/upload" className="gap-2">
+                <Upload className="h-4 w-4" />
+                Upload Image
+              </Link>
+            </Button>
+          </SignedIn>
         </div>
-      </main>
-    </div>
+        <Suspense fallback={<GallerySkeleton />}>
+          <Gallery />
+        </Suspense>
+      </div>
+    </main>
   );
 }
