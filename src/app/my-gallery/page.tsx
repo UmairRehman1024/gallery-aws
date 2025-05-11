@@ -4,8 +4,25 @@ import { Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Gallery } from "@/components/gallery";
 import { GallerySkeleton } from "@/components/gallery-skeleton";
+import { getImagesByUser } from "@/server/queries/images";
+import { auth } from "@clerk/nextjs/server";
 
-export default function MyGalleryPage() {
+export default async function MyGalleryPage() {
+  const { userId } = await auth();
+  if (!userId) {
+    return (
+      <main className="flex min-h-screen flex-col items-center">
+        <div className="container py-6">
+          <h1 className="text-3xl font-bold tracking-tight">My Gallery</h1>
+          <p className="text-muted-foreground">
+            You must be signed in to view your gallery.
+          </p>
+        </div>
+      </main>
+    );
+  }
+  const images = await getImagesByUser(userId);
+
   return (
     <main className="flex min-h-screen flex-col items-center">
       <div className="container py-6">
@@ -24,7 +41,7 @@ export default function MyGalleryPage() {
           </Button>
         </div>
         <Suspense fallback={<GallerySkeleton />}>
-          <Gallery isPersonal />
+          <Gallery images={images} />
         </Suspense>
       </div>
     </main>

@@ -1,3 +1,3 @@
-- [ ] add AWS DynamoDB
-- [ ] make ui look better
+- [x] add AWS DynamoDB
+- [x] make ui look better
 - [ ] lambda function for image processing

@@ -1,9 +1,11 @@
 "use server";
 
 import { nanoid } from "nanoid/non-secure";
-import { ddb, GalleryImageSchema } from "../db";
+import { ddb } from "../db";
 import { PutCommand } from "@aws-sdk/lib-dynamodb";
 import { env } from "@/env";
+import { auth } from "@clerk/nextjs/server";
+import { GalleryImageSchema } from "@/types/gallery-image";
 
 export async function saveImageMetadata({
   key,
@@ -16,6 +18,8 @@ export async function saveImageMetadata({
   filename: string;
   userID: string;
 }) {
+  const { userId } = await auth();
+  if (!userId) throw new Error("Not authenticated");
   // Validate the input data
   const parsedData = GalleryImageSchema.parse({
     ID: nanoid(),

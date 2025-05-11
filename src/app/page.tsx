@@ -23,8 +23,25 @@ import { Button } from "@/components/ui/button";
 import { Gallery } from "@/components/gallery";
 import { GallerySkeleton } from "@/components/gallery-skeleton";
 import { SignedIn } from "@clerk/nextjs";
+import { getAllImages } from "@/server/queries/images";
+import { auth } from "@clerk/nextjs/server";
 
 export default async function HomePage() {
+  const { userId } = await auth();
+
+  if (!userId) {
+    return (
+      <main className="flex min-h-screen flex-col items-center">
+        <div className="container py-6">
+          <h1 className="text-3xl font-bold tracking-tight">Public Gallery</h1>
+          <p className="text-muted-foreground">
+            Browse all public images from our community.
+          </p>
+        </div>
+      </main>
+    );
+  }
+  const images = await getAllImages();
   return (
     <main className="flex min-h-screen w-full flex-col items-center">
       <div className="container py-6">
@@ -47,7 +64,7 @@ export default async function HomePage() {
           </SignedIn>
         </div>
         <Suspense fallback={<GallerySkeleton />}>
-          <Gallery />
+          <Gallery images={images} />
         </Suspense>
       </div>
     </main>
