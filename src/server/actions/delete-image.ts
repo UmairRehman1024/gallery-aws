@@ -19,14 +19,12 @@ export async function deleteImage(ID: string) {
   const { userId } = await auth();
   if (!userId) throw new Error("Not authenticated");
 
-  console.log("Deleting image with ID:", ID);
-  console.log("User ID:", userId);
-
+  console.log("DynamoDB Key:", { ID });
   // 1. Get the image item from DynamoDB
   const getResult = await ddb.send(
     new GetCommand({
       TableName: env.AWS_DYNAMO_DB_TABLE,
-      Key: { ID },
+      Key: { ID, userID: userId },
     }),
   );
   const image = getResult.Item;
@@ -48,7 +46,7 @@ export async function deleteImage(ID: string) {
   await ddb.send(
     new DeleteCommand({
       TableName: env.AWS_DYNAMO_DB_TABLE,
-      Key: { ID },
+      Key: { ID, userID: userId },
     }),
   );
 
