@@ -1,22 +1,18 @@
-/**
- * @jest-environment node
- */
-
-
 import { POST } from '@/app/api/getPresignedURL/route';
 import { NextRequest } from 'next/server';
+import { describe, beforeEach, it, expect, vi, type Mock } from 'vitest';
 
 // Mock AWS SDK
-jest.mock('@aws-sdk/s3-request-presigner', () => ({
-  getSignedUrl: jest.fn().mockResolvedValue('https://mock-s3-url'),
+vi.mock('@aws-sdk/s3-request-presigner', () => ({
+  getSignedUrl: vi.fn().mockResolvedValue('https://mock-s3-url'),
 }));
-jest.mock('@aws-sdk/client-s3', () => ({
-  S3Client: jest.fn(),
-  PutObjectCommand: jest.fn(),
+vi.mock('@aws-sdk/client-s3', () => ({
+  S3Client: vi.fn(),
+  PutObjectCommand: vi.fn(),
 }));
 
 // Mock env
-jest.mock('@/env', () => ({
+vi.mock('@/env', () => ({
   env: {
     AWS_REGION: 'us-east-1',
     AWS_ACCESS_KEY_ID: 'test-key',
@@ -26,10 +22,10 @@ jest.mock('@/env', () => ({
 }));
 
 // Helper to mock Clerk auth
-jest.mock('@clerk/nextjs/server', () => ({
-  auth: jest.fn(),
+vi.mock('@clerk/nextjs/server', () => ({
+  auth: vi.fn(),
 }));
-const { auth } = require('@clerk/nextjs/server');
+import { auth } from '@clerk/nextjs/server';
 
 function createRequest(body: any) {
   return {
@@ -39,11 +35,11 @@ function createRequest(body: any) {
 
 describe('POST /api/getPresignedURL', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('returns 401 if not authenticated', async () => {
-    auth.mockResolvedValue({ userId: null });
+    (auth as unknown as Mock).mockResolvedValue({ userId: null });
     const req = createRequest({ filename: 'test.png', filetype: 'image/png' });
     const res = await POST(req);
 
@@ -53,7 +49,7 @@ describe('POST /api/getPresignedURL', () => {
   });
 
   it('returns 400 if missing filename', async () => {
-    auth.mockResolvedValue({ userId: 'user_123' });
+    (auth as unknown as Mock).mockResolvedValue({ userId: 'user_123' });
     const req = createRequest({ filetype: 'image/png' });
     const res = await POST(req);
 
@@ -63,7 +59,7 @@ describe('POST /api/getPresignedURL', () => {
   });
 
   it('returns 400 if missing filetype', async () => {
-    auth.mockResolvedValue({ userId: 'user_123' });
+    (auth as unknown as Mock).mockResolvedValue({ userId: 'user_123' });
     const req = createRequest({ filename: 'test.png' });
     const res = await POST(req);
 
@@ -73,7 +69,7 @@ describe('POST /api/getPresignedURL', () => {
   });
 
   it('returns 400 if empty body', async () => {
-    auth.mockResolvedValue({ userId: 'user_123' });
+    (auth as unknown as Mock).mockResolvedValue({ userId: 'user_123' });
     const req = createRequest({});
     const res = await POST(req);
 
@@ -83,7 +79,7 @@ describe('POST /api/getPresignedURL', () => {
   });
 
   it('returns presigned URL and key for valid request', async () => {
-    auth.mockResolvedValue({ userId: 'user_123' });
+    (auth as unknown as Mock).mockResolvedValue({ userId: 'user_123' });
     const req = createRequest({ filename: 'test.png', filetype: 'image/png' });
     const res = await POST(req);
 

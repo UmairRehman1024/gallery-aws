@@ -1,6 +1,6 @@
 "use server";
 
-import { nanoid } from "nanoid/non-secure";
+import { nanoid } from "nanoid";
 import { ddb } from "../db";
 import { PutCommand } from "@aws-sdk/lib-dynamodb";
 import { env } from "@/env";
@@ -29,6 +29,8 @@ export async function saveImageMetadata({
     uploadedAt: Date.now(),
     userID,
   });
+
+  if (!parsedData) throw new Error("Invalid input");
 
   await ddb.send(
     new PutCommand({
