@@ -2,6 +2,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { env } from "@/env";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { auth } from "@clerk/nextjs/server";
 
 export interface PresignRequest {
   filename: string;
@@ -23,6 +24,24 @@ const s3 = new S3Client({
 
 export async function POST(req: NextRequest) {
   const { filename, filetype } = (await req.json()) as PresignRequest;
+
+  const user = await auth()
+
+  if (!user.userId) {
+    return NextResponse.json(
+      { error: "Unauthorized" },
+      { status: 401 }
+    );
+  }
+
+  // Input validation
+  if (!filename || !filetype) {
+    return NextResponse.json(
+      { error: "Missing filename or filetype" },
+      { status: 400 }
+    );
+  }
+
   const { url, key } = await getPresignedUrl(filename, filetype);
   return NextResponse.json({ url, key });
 }
