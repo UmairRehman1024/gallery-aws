@@ -6,7 +6,6 @@ import { GalleryImageSchema, type GalleryImage } from "@/types/gallery-image";
 export async function getAllImages(): Promise<GalleryImage[]> {
   const result = await ddb.send(
     new ScanCommand({
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       TableName: env.AWS_DYNAMO_DB_TABLE,
     }),
   );

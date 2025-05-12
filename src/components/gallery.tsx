@@ -72,7 +72,9 @@ export function Gallery({ images: initialImages }: GalleryProps) {
       });
       setImageToDelete(null);
     } catch (err) {
-      toast.error("Failed to delete image");
+      toast.error("Failed to delete image", {
+        description: err instanceof Error ? err.message : "Unknown error",
+      });
     }
   };
 

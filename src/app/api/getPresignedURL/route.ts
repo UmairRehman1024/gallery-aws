@@ -1,7 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-// The @t3-oss/env-nextjs package guarantees the env variables are strings.
-
 import { type NextRequest, NextResponse } from "next/server";
 import { env } from "@/env";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";

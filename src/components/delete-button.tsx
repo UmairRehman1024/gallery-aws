@@ -30,10 +30,3 @@ export function DeleteButton({ id }: { id: string }) {
     </Button>
   );
 }
-
-const onDelete = async () => {
-  // Perform the delete operation here
-  console.log("Delete operation performed");
-  // You can also call an API endpoint to handle the deletion
-  // await fetch("/api/delete", { method: "DELETE" })
-};

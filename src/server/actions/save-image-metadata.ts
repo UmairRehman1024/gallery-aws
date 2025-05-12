@@ -32,7 +32,6 @@ export async function saveImageMetadata({
 
   await ddb.send(
     new PutCommand({
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       TableName: env.AWS_DYNAMO_DB_TABLE,
       Item: {
         ...parsedData, // <-- Spread the fields here
